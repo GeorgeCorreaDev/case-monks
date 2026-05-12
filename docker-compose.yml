@@ -1,0 +1,33 @@
+services:
+  agent-api:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./app/.env
+    volumes:
+      - ./case-monks-496112-043c919de17b.json:/app/case-monks-496112-043c919de17b.json:ro
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  agent-frontend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    command: ["streamlit", "run", "frontend/app_streamlit.py", "--server.port=8501", "--server.address=0.0.0.0"]
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://agent-api:8000/api/v1
+    env_file:
+      - ./app/.env
+    depends_on:
+      agent-api:
+        condition: service_healthy
+    restart: always

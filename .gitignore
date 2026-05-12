@@ -1,0 +1,20 @@
+
+Analyzing Case Study Requirements.md
+case_psel.pdf
+
+.env
+*.json
+
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+env/

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monks-agent
+  labels:
+    app: monks-agent
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: monks-agent
+  template:
+    metadata:
+      labels:
+        app: monks-agent
+    spec:
+      containers:
+      - name: agent
+        image: monks-media-analyst:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: agent-config
+        - secretRef:
+            name: agent-secrets
+        livenessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monks-agent-service
+spec:
+  selector:
+    app: monks-agent
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer
